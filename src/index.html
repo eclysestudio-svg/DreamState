@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth bg-dream-charcoal text-white">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamState | AI-Powered Focus Sanctuary</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP & Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        dream: {
+                            sky: '#F4F7FB',
+                            mauve: '#E8C1D9',
+                            stone: '#D1D5DB',
+                            charcoal: '#111827',
+                            white: '#FFFFFF',
+                            indigo: '#4F46E5',
+                            dark: '#0a0f1a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        * {
+            cursor: none !important;
+        }
+
+        /* Custom Shiny Pinky Moon Cursor */
+        #custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            mix-blend-mode: difference;
+        }
+
+        #cursor-shape {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: transparent;
+            box-shadow: inset 5px 5px 0px 2px #fbcfe8;
+            /* Pink-100 */
+            filter: drop-shadow(0 0 10px rgba(244, 114, 182, 0.8));
+            /* Pink-400 glow */
+            transform: rotate(-45deg);
+            transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), height 0.4s cubic-bezier(0.25, 1, 0.5, 1), border-radius 0.4s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.4s, border 0.4s, box-shadow 0.4s, transform 0.4s;
+        }
+
+        /* Enlarge cursor on hover state - Different Shape */
+        .cursor-hover-shape {
+            width: 64px !important;
+            height: 64px !important;
+            border-radius: 12px !important;
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.8) !important;
+            box-shadow: 0 0 20px rgba(244, 114, 182, 0.5) !important;
+            transform: rotate(0deg) !important;
+        }
+
+        /* Active click state */
+        .cursor-active-shape {
+            transform: scale(0.8) rotate(0deg) !important;
+        }
+
+        .glass-dark {
+            background: rgba(17, 24, 39, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-light {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Utilities for text animations */
+        .overflow-hidden-inline {
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        /* Floating animation for headlines */
+        @keyframes float-slow {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .animate-float {
+            animation: float-slow 6s ease-in-out infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0f1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #E8C1D9;
+        }
+    </style>
+</head>
+
+<body class="antialiased selection:bg-dream-indigo selection:text-white">
+
+    <!-- Custom Cursor -->
+    <div id="custom-cursor">
+        <div id="cursor-shape"></div>
+    </div>
+
+    <!-- Pricing Modal Overlay -->
+    <div id="pricing-modal"
+        class="fixed inset-0 z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-500">
+        <!-- Backdrop -->
+        <div id="pricing-backdrop" class="absolute inset-0 bg-black/80 backdrop-blur-xl hover-target"></div>
+
+        <!-- Modal Content -->
+        <div class="relative z-10 w-full max-w-5xl mx-auto px-4 scale-95 opacity-0" id="pricing-content">
+            <button id="close-pricing"
+                class="absolute -top-12 right-4 md:-right-12 text-white/50 hover:text-white transition-colors hover-target">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <div class="text-center mb-10">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">Select Your Protocol</h2>
+                <p class="text-dream-stone">Invest in your greatest asset: your attention.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Tier 1 -->
+                <div
+                    class="glass-dark p-10 rounded-[2rem] border border-white/10 hover:border-white/30 transition-colors bg-[#111827] hover-target">
+                    <h3 class="text-2xl font-bold text-white mb-2">Standard Flow</h3>
+                    <p class="text-dream-stone/60 text-sm mb-6">For casual deep-work sessions.</p>
+                    <div class="mb-8">
+                        <span class="text-5xl font-bold text-white">$9</span>
+                        <span class="text-dream-stone/50">/mo</span>
+                    </div>
+                    <ul class="space-y-4 mb-10 text-sm text-dream-stone">
+                        <li class="flex gap-3 items-center"><svg class="w-5 h-5 text-dream-mauve shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg> 5 Spatial Audio Environments</li>
+                        <li class="flex gap-3 items-center"><svg class="w-5 h-5 text-dream-mauve shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg> Basic Analytics</li>
+                        <li class="flex gap-3 items-center"><svg class="w-5 h-5 text-dream-mauve shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg> Web Access Only</li>
+                    </ul>
+                    <button
+                        class="w-full py-4 rounded-xl font-bold bg-white/10 hover:bg-white/20 text-white transition-colors">Start
+                        Free Trial</button>
+                </div>
+
+                <!-- Tier 2 -->
+                <div
+                    class="glass-dark p-10 rounded-[2rem] border border-dream-indigo relative overflow-hidden bg-[#111827] shadow-[0_0_50px_rgba(79,70,229,0.15)] hover-target">
+                    <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-dream-indigo to-dream-mauve"></div>
+                    <div
+                        class="absolute top-6 right-8 bg-dream-indigo/20 text-dream-indigo text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        Recommended</div>
+
+                    <h3 class="text-2xl font-bold text-white mb-2">Pro Mastery</h3>
+                    <p class="text-dream-stone/60 text-sm mb-6">For elite cognitive athletes.</p>
+                    <div class="mb-8">
+                        <span class="text-5xl font-bold text-white">$24</span>
+                        <span class="text-dream-stone/50">/mo</span>
+                    </div>
+                    <ul class="space-y-4 mb-10 text-sm text-dream-stone">
+                        <li class="flex gap-3 items-center"><svg class="w-5 h-5 text-dream-indigo shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg> Infinite AI Soundscapes</li>
+                        <li class="flex gap-3 items-center"><svg class="w-5 h-5 text-dream-indigo shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg> Biometric Syncing</li>
+                        <li class="flex gap-3 items-center"><svg class="w-5 h-5 text-dream-indigo shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg> All Platforms (iOS, Mac, Web)</li>
+                        <li class="flex gap-3 items-center"><svg class="w-5 h-5 text-dream-indigo shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg> Advanced Focus Metrics</li>
+                    </ul>
+                    <button
+                        class="w-full py-4 rounded-xl font-bold bg-dream-indigo hover:bg-white hover:text-dream-indigo text-white transition-colors">Go
+                        Pro</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 px-6 py-6 transition-all duration-500" id="main-nav">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+                class="flex items-center gap-4 group cursor-pointer hover-target">
+                <img src="../assests/logo.png" alt="DreamState Logo" class="h-10 w-auto object-contain">
+                <span class="text-xl font-bold tracking-tight text-white hidden sm:block">DreamState</span>
+            </div>
+            <div class="hidden md:flex gap-10 text-sm font-medium text-white/80">
+                <a href="#philosophy" class="hover:text-dream-mauve transition-colors hover-target">Philosophy</a>
+                <a href="#sanctuary" class="hover:text-dream-mauve transition-colors hover-target">Sanctuary</a>
+                <a href="#interface" class="hover:text-dream-mauve transition-colors hover-target">Interface</a>
+            </div>
+            <button
+                class="pricing-trigger glass-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-white hover:text-dream-charcoal transition-all duration-300 shadow-lg border border-white/20 hover-target">
+                Get Access
+            </button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- HERO SECTION (Full Bleed) -->
+        <section class="relative h-screen w-full flex flex-col justify-center overflow-hidden">
+            <!-- Parallax Background Image -->
+            <div id="hero-bg" class="absolute inset-0 w-full h-[120%] -top-[10%] bg-cover bg-center"
+                style="background-image: url('../assests/hero.jpeg');"></div>
+
+            <!-- Vignette & Gradients -->
+            <div class="absolute inset-0 bg-black/20"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-dream-charcoal/60 via-transparent to-dream-charcoal">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-r from-dream-charcoal/40 via-transparent to-transparent"></div>
+
+            <!-- Content -->
+            <div class="relative z-10 px-6 max-w-7xl mx-auto w-full text-center md:text-left mt-20">
+                <div class="inline-flex items-center gap-3 border border-white/20 rounded-full px-5 py-2 mb-8 glass-dark text-xs uppercase tracking-[0.3em] font-semibold opacity-0"
+                    id="hero-badge">
+                    <span class="w-2 h-2 rounded-full bg-dream-mauve animate-pulse"></span>
+                    The Evolution of Focus
+                </div>
+
+                <h1 id="hero-title"
+                    class="text-6xl md:text-8xl lg:text-[9rem] font-bold tracking-tighter leading-[0.85] text-white mb-8 animate-float">
+                    <div class="overflow-hidden-inline"><span
+                            class="title-word inline-block transform translate-y-[120%]">Reach</span></div>
+                    <div class="overflow-hidden-inline"><span
+                            class="title-word inline-block transform translate-y-[120%]">your</span></div>
+                    <br>
+                    <div class="overflow-hidden-inline"><span
+                            class="title-word italic text-dream-mauve font-light inline-block transform translate-y-[120%]">flow</span>
+                    </div>
+                    <div class="overflow-hidden-inline"><span
+                            class="title-word italic text-dream-mauve font-light inline-block transform translate-y-[120%]">state</span>
+                    </div>
+                    <div class="overflow-hidden-inline"><span
+                            class="title-word text-dream-mauve inline-block transform translate-y-[120%]">.</span></div>
+                </h1>
+
+                <p id="hero-desc"
+                    class="text-lg md:text-2xl text-dream-stone font-light max-w-2xl leading-relaxed opacity-0 md:ml-2">
+                    Transcend the noise. Synchronize your neural rhythms with AI-curated soundscapes designed for
+                    absolute immersion and cognitive flow.
+                </p>
+
+                <div class="mt-12 flex flex-col sm:flex-row gap-6 opacity-0" id="hero-cta">
+                    <button
+                        class="pricing-trigger hover-target bg-white text-dream-charcoal px-10 py-5 rounded-full font-bold text-lg hover:bg-dream-mauve transition-colors duration-300 shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+                        Begin Journey
+                    </button>
+                    <button
+                        class="hover-target px-10 py-5 rounded-full font-bold text-lg text-white border border-white/30 hover:bg-white/10 transition-colors duration-300 glass-dark">
+                        Listen to a sample
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 1: Philosophy (The Noise + Typography Image) -->
+        <section id="philosophy" class="py-32 md:py-48 bg-dream-charcoal relative">
+            <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+                <div class="order-2 lg:order-1">
+                    <h2 class="text-4xl md:text-6xl font-bold mb-6 text-dream-stone opacity-30 reveal-text-anim">
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] section-word">The</span></div>
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] section-word">world</span></div>
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] section-word">is</span></div>
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] section-word">loud.</span></div>
+                    </h2>
+                    <h2 class="text-4xl md:text-6xl font-bold mb-10 text-white leading-tight reveal-text-anim">
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] section-word-white">Attention</span>
+                        </div>
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] section-word-white">is</span></div>
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] section-word-white">the</span></div>
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] section-word-white">ultimate</span>
+                        </div>
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] section-word-white">currency.</span>
+                        </div>
+                    </h2>
+                    <p class="text-xl md:text-2xl text-dream-stone/80 font-light leading-relaxed mb-8 reveal-fade">
+                        Constant notifications. Shallow work. Mental fatigue. We built DreamState to construct walls
+                        around your focus, turning chaotic environments into private, impenetrable sanctuaries.
+                    </p>
+                </div>
+                <div class="relative reveal-slide-left order-1 lg:order-2">
+                    <div class="absolute inset-0 bg-dream-mauve/20 blur-3xl rounded-full transform -rotate-6"></div>
+                    <img src="../assests/typography.jpeg" alt="Focus Typography"
+                        class="relative z-10 w-full h-auto rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 object-cover aspect-square md:aspect-auto">
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Daily Versatility (Redesigned Interactive Cards) -->
+        <section class="py-32 bg-[#0a0f1a] text-white relative border-t border-white/5">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-24 reveal-fade">
+                    <span class="text-dream-indigo uppercase tracking-widest font-bold text-sm mb-4 block">Omnipresent
+                        Adaptation</span>
+                    <h2 class="text-4xl md:text-6xl font-bold tracking-tighter mb-6">Designed for your entire day.</h2>
+                    <p class="text-xl text-dream-stone/80 max-w-2xl mx-auto font-light">Your neural state adapts to your
+                        environment. Use DreamState seamlessly across all phases of your day.</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Working -->
+                    <div class="relative h-[450px] rounded-[2rem] overflow-hidden group hover-target reveal-card">
+                        <img src="../assests/card%201.jpeg" alt="Working"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-50 group-hover:opacity-90">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-[#0a0f1a] via-[#0a0f1a]/60 to-transparent opacity-90 group-hover:opacity-60 transition-opacity duration-500">
+                        </div>
+
+                        <div class="absolute inset-0 p-8 flex flex-col justify-end">
+                            <span
+                                class="text-dream-mauve font-mono text-sm mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">01
+                                // FOCUS</span>
+                            <h3
+                                class="text-4xl font-bold mb-4 transform group-hover:-translate-y-2 transition-transform duration-500 text-white">
+                                Working</h3>
+                            <div class="h-0 group-hover:h-24 transition-all duration-500 overflow-hidden">
+                                <p
+                                    class="text-dream-stone/90 font-light leading-relaxed transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 delay-100">
+                                    Isolate cognitive load. The AI actively suppresses erratic environmental noise
+                                    during intense focus sprints.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Eating -->
+                    <div class="relative h-[450px] rounded-[2rem] overflow-hidden group hover-target reveal-card">
+                        <img src="../assests/card%202.jpeg" alt="Eating"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-50 group-hover:opacity-90">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-[#0a0f1a] via-[#0a0f1a]/60 to-transparent opacity-90 group-hover:opacity-60 transition-opacity duration-500">
+                        </div>
+
+                        <div class="absolute inset-0 p-8 flex flex-col justify-end">
+                            <span
+                                class="text-dream-mauve font-mono text-sm mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">02
+                                // NOURISH</span>
+                            <h3
+                                class="text-4xl font-bold mb-4 transform group-hover:-translate-y-2 transition-transform duration-500 text-white">
+                                Eating</h3>
+                            <div class="h-0 group-hover:h-24 transition-all duration-500 overflow-hidden">
+                                <p
+                                    class="text-dream-stone/90 font-light leading-relaxed transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 delay-100">
+                                    Transition smoothly. Calming, steady rhythms accompany your breaks, maintaining
+                                    momentum without stress.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resting (Using Card 4) -->
+                    <div class="relative h-[450px] rounded-[2rem] overflow-hidden group hover-target reveal-card">
+                        <img src="../assests/card%204.jpeg" alt="Resting"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-50 group-hover:opacity-90">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-[#0a0f1a] via-[#0a0f1a]/60 to-transparent opacity-90 group-hover:opacity-60 transition-opacity duration-500">
+                        </div>
+
+                        <div class="absolute inset-0 p-8 flex flex-col justify-end">
+                            <span
+                                class="text-dream-mauve font-mono text-sm mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">03
+                                // RECOVER</span>
+                            <h3
+                                class="text-4xl font-bold mb-4 transform group-hover:-translate-y-2 transition-transform duration-500 text-white">
+                                Resting</h3>
+                            <div class="h-0 group-hover:h-24 transition-all duration-500 overflow-hidden">
+                                <p
+                                    class="text-dream-stone/90 font-light leading-relaxed transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 delay-100">
+                                    Down-regulate your nervous system. Delta-wave entrainment ensures your downtime
+                                    actually restores energy.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: The Sanctuary (Visualizer UI) -->
+        <section id="sanctuary"
+            class="py-32 md:py-48 bg-dream-sky text-dream-charcoal relative overflow-hidden transition-colors duration-1000 hover-target-light">
+            <div
+                class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-dream-mauve/20 to-transparent pointer-events-none">
+            </div>
+            <div
+                class="absolute -top-40 -left-40 w-96 h-96 bg-dream-indigo/10 rounded-full blur-[100px] pointer-events-none">
+            </div>
+
+            <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center relative z-10">
+                <div class="order-2 lg:order-1 reveal-slide-right">
+                    <span class="text-dream-indigo uppercase tracking-widest font-bold text-sm mb-6 block">The Paradigm
+                        Shift</span>
+                    <h2 class="text-5xl md:text-7xl font-bold tracking-tighter leading-[1.05] mb-8 animate-float">
+                        Design your <br>neural habitat.
+                    </h2>
+                    <p class="text-xl text-dream-charcoal/70 leading-relaxed mb-10 font-light">
+                        Our spatial audio engine analyzes your workflow pacing and generates infinite, non-looping
+                        ambient soundscapes. These frequencies actively mask distraction and entrain your brainwaves for
+                        sustained, deep cognitive labor.
+                    </p>
+                </div>
+
+                <div class="order-1 lg:order-2 relative reveal-slide-left">
+                    <div class="aspect-square absolute -inset-4 bg-gradient-to-tr from-dream-indigo/20 via-dream-mauve/30 to-white/50 rounded-full blur-2xl animate-pulse"
+                        style="animation-duration: 4s;"></div>
+
+                    <div class="glass-light p-8 md:p-12 rounded-[2.5rem] relative z-10 hover-target-light">
+                        <div class="flex items-center justify-between mb-10 pb-6 border-b border-dream-charcoal/10">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-dream-charcoal text-white flex items-center justify-center shadow-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <span class="block font-bold text-lg">Deep Work Alpha</span>
+                                    <span class="block text-sm text-dream-charcoal/50">Active Session</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="block font-mono text-dream-indigo font-bold">40.0 Hz</span>
+                                <span
+                                    class="block text-xs uppercase tracking-widest text-dream-charcoal/50">Gamma</span>
+                            </div>
+                        </div>
+
+                        <!-- Equalizer visualization -->
+                        <div class="flex items-end justify-between h-32 gap-2 mb-8">
+                            <div
+                                class="w-full bg-dream-charcoal/5 rounded-t-sm h-[30%] animate-[pulse_1s_ease-in-out_infinite_alternate]">
+                            </div>
+                            <div
+                                class="w-full bg-dream-indigo/40 rounded-t-sm h-[70%] animate-[pulse_1.2s_ease-in-out_infinite_alternate]">
+                            </div>
+                            <div
+                                class="w-full bg-dream-charcoal/10 rounded-t-sm h-[50%] animate-[pulse_0.8s_ease-in-out_infinite_alternate]">
+                            </div>
+                            <div
+                                class="w-full bg-dream-mauve rounded-t-sm h-[90%] animate-[pulse_1.5s_ease-in-out_infinite_alternate]">
+                            </div>
+                            <div
+                                class="w-full bg-dream-indigo/60 rounded-t-sm h-[60%] animate-[pulse_1.1s_ease-in-out_infinite_alternate]">
+                            </div>
+                            <div
+                                class="w-full bg-dream-charcoal/5 rounded-t-sm h-[40%] animate-[pulse_1.3s_ease-in-out_infinite_alternate]">
+                            </div>
+                            <div
+                                class="w-full bg-dream-mauve/60 rounded-t-sm h-[80%] animate-[pulse_0.9s_ease-in-out_infinite_alternate]">
+                            </div>
+                        </div>
+
+                        <div class="h-2 bg-dream-charcoal/5 rounded-full overflow-hidden mb-2">
+                            <div id="audio-progress"
+                                class="h-full bg-gradient-to-r from-dream-indigo to-dream-mauve w-[68%] rounded-full relative transition-all duration-1000 ease-linear">
+                            </div>
+                        </div>
+                        <div
+                            class="flex justify-between text-xs font-mono text-dream-charcoal/50 font-bold tracking-wider">
+                            <span id="audio-current-time">42:15</span>
+                            <span id="audio-total-time">60:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: The Hook (Card 3 Headset) -->
+        <section id="interface"
+            class="py-40 bg-dream-charcoal relative overflow-hidden flex items-center justify-center min-h-[80vh] border-y border-white/10">
+            <!-- Background Hook Image (card 3.jpeg) -->
+            <div id="hook-parallax"
+                class="absolute inset-0 w-full h-[120%] -top-[10%] bg-cover bg-center mix-blend-screen opacity-40"
+                style="background-image: url('../assests/card%203.jpeg');"></div>
+            <!-- Gradients to blend text -->
+            <div class="absolute inset-0 bg-gradient-to-r from-dream-charcoal via-dream-charcoal/80 to-transparent">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-dream-charcoal via-transparent to-transparent"></div>
+
+            <div class="relative z-10 px-6 max-w-7xl mx-auto w-full">
+                <div class="max-w-2xl reveal-slide-right">
+                    <span class="text-dream-mauve uppercase tracking-widest font-bold text-sm mb-6 block">The
+                        Interface</span>
+                    <h2 class="text-6xl md:text-8xl font-bold tracking-tighter leading-[0.9] mb-8 text-white reveal-hook-title animate-float"
+                        style="animation-delay: 1s;">
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] hook-word">Plug</span></div>
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] hook-word">into</span></div><br>
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] hook-word">the</span></div>
+                        <div class="overflow-hidden-inline"><span
+                                class="inline-block transform translate-y-[120%] hook-word">infinite.</span></div>
+                    </h2>
+                    <p class="text-xl md:text-2xl text-dream-stone/90 font-light mb-12 leading-relaxed">
+                        Put on your headset. The world disappears. Only your highest potential remains. No distractions,
+                        just pure execution.
+                    </p>
+                    <button
+                        class="pricing-trigger hover-target inline-flex items-center gap-2 border-b-2 border-white pb-1 font-bold text-xl hover:text-dream-mauve hover:border-dream-mauve transition-all group">
+                        Experience the hardware
+                        <svg class="w-5 h-5 group-hover:translate-x-2 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: Reviews (The Vanguard) -->
+        <section class="py-32 bg-[#05080f] text-white">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-20 reveal-fade">
+                    <h2 class="text-4xl md:text-6xl font-bold tracking-tight mb-4">The Vanguard.</h2>
+                    <p class="text-xl text-dream-stone/60 font-light">Join thousands of high-performers operating at
+                        peak state.</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Review 1 -->
+                    <div
+                        class="glass-dark p-10 rounded-3xl reveal-card border border-white/5 hover:border-dream-mauve/30 transition-colors hover-target">
+                        <div class="flex text-dream-mauve mb-6 text-xl">★★★★★</div>
+                        <p class="text-lg font-light leading-relaxed mb-10 text-dream-stone/90">"It's the switch I flip
+                            to enter another dimension of focus. I've literally doubled my deep work hours since using
+                            the Pro tier."</p>
+                        <div class="flex items-center gap-4">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Elena Rostova"
+                                class="w-12 h-12 rounded-full object-cover border border-white/20">
+                            <div>
+                                <div class="font-bold">Elena Rostova</div>
+                                <div class="text-sm text-dream-stone/50">Lead Architect</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 2 -->
+                    <div
+                        class="glass-dark p-10 rounded-3xl reveal-card border border-white/5 hover:border-dream-mauve/30 transition-colors hover-target">
+                        <div class="flex text-dream-mauve mb-6 text-xl">★★★★★</div>
+                        <p class="text-lg font-light leading-relaxed mb-10 text-dream-stone/90">"The way the audio
+                            adapts when I start typing rapidly is purely magical. It creates a complete bubble of
+                            immersion in my busy office."</p>
+                        <div class="flex items-center gap-4">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Marcus Vance"
+                                class="w-12 h-12 rounded-full object-cover border border-white/20">
+                            <div>
+                                <div class="font-bold">Marcus Vance</div>
+                                <div class="text-sm text-dream-stone/50">Software Engineer</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 3 -->
+                    <div
+                        class="glass-dark p-10 rounded-3xl reveal-card border border-white/5 hover:border-dream-mauve/30 transition-colors hover-target">
+                        <div class="flex text-dream-mauve mb-6 text-xl">★★★★★</div>
+                        <p class="text-lg font-light leading-relaxed mb-10 text-dream-stone/90">"I use it while resting
+                            just as much as working. The delta-wave entrainment actually works to calm my nervous system
+                            down."</p>
+                        <div class="flex items-center gap-4">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Sarah Jenkins"
+                                class="w-12 h-12 rounded-full object-cover border border-white/20">
+                            <div>
+                                <div class="font-bold">Sarah Jenkins</div>
+                                <div class="text-sm text-dream-stone/50">Creative Director</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: Final CTA -->
+        <section class="py-40 relative overflow-hidden flex items-center justify-center border-t border-white/5">
+            <div class="absolute inset-0 w-full h-full bg-cover bg-center opacity-20 mix-blend-luminosity"
+                style="background-image: url('../assests/hero.jpeg');"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-dream-charcoal via-dream-charcoal/80 to-transparent">
+            </div>
+
+            <div class="relative z-10 text-center max-w-3xl mx-auto px-6 reveal-up">
+                <h2 class="text-5xl md:text-7xl font-bold tracking-tighter text-white mb-8">Ready to transcend?</h2>
+                <p class="text-xl text-dream-stone mb-12 font-light">Join 10,000+ creators, engineers, and visionaries
+                    experiencing the future of cognitive conditioning.</p>
+                <button
+                    class="pricing-trigger hover-target bg-dream-indigo text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-white hover:text-dream-indigo transition-all duration-300 shadow-[0_0_50px_rgba(79,70,229,0.4)] hover:scale-105">
+                    Start Your Free Trial
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#03050a] py-12 px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+                class="flex items-center gap-3 hover-target cursor-pointer">
+                <img src="../assests/logo.png" alt="DreamState Logo" class="h-8 w-auto grayscale opacity-50">
+                <span class="text-lg font-bold tracking-tight text-white/50">DreamState</span>
+            </div>
+            <div class="text-xs text-dream-stone/40 font-medium uppercase tracking-[0.2em]">
+                &copy; 2026 Elyse Studio. All rights reserved.
+            </div>
+            <div class="flex gap-8 text-dream-stone/60 font-medium text-sm">
+                <a href="#" class="hover:text-white transition-colors hover-target">Privacy</a>
+                <a href="#" class="hover:text-white transition-colors hover-target">Terms</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+        class="fixed bottom-8 right-8 z-50 glass-dark text-white p-4 rounded-full shadow-2xl opacity-0 translate-y-10 pointer-events-none transition-all duration-500 hover:scale-110 hover:border-dream-mauve hover-target border border-white/10 group">
+        <svg class="w-6 h-6 text-dream-stone group-hover:text-dream-mauve transition-colors" fill="none"
+            stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // --- CUSTOM CURSOR ---
+            const cursor = document.getElementById('custom-cursor');
+            const cursorShape = document.getElementById('cursor-shape');
+
+            // Setup mouse move tracking
+            gsap.set(cursor, { xPercent: -50, yPercent: -50 });
+
+            let xTo = gsap.quickTo(cursor, "x", { duration: 0.15, ease: "power3" }),
+                yTo = gsap.quickTo(cursor, "y", { duration: 0.15, ease: "power3" });
+
+            window.addEventListener("mousemove", e => {
+                xTo(e.clientX);
+                yTo(e.clientY);
+            });
+
+            window.addEventListener("mousedown", () => cursorShape.classList.add('cursor-active-shape'));
+            window.addEventListener("mouseup", () => cursorShape.classList.remove('cursor-active-shape'));
+
+            // Add hover effects for interactive elements
+            const hoverTargets = document.querySelectorAll('button, a, .hover-target');
+            hoverTargets.forEach(target => {
+                target.addEventListener('mouseenter', () => cursorShape.classList.add('cursor-hover-shape'));
+                target.addEventListener('mouseleave', () => cursorShape.classList.remove('cursor-hover-shape'));
+            });
+
+            // --- 3D TILT EFFECT ---
+            const tiltElements = document.querySelectorAll('.reveal-card, .glass-light, .tilt-target');
+            tiltElements.forEach(el => {
+                el.addEventListener('mousemove', (e) => {
+                    const rect = el.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+
+                    const rotateX = ((y - centerY) / centerY) * -10;
+                    const rotateY = ((x - centerX) / centerX) * 10;
+
+                    gsap.to(el, {
+                        rotateX: rotateX,
+                        rotateY: rotateY,
+                        transformPerspective: 1000,
+                        ease: "power2.out",
+                        duration: 0.4
+                    });
+                });
+
+                el.addEventListener('mouseleave', () => {
+                    gsap.to(el, {
+                        rotateX: 0,
+                        rotateY: 0,
+                        ease: "power2.out",
+                        duration: 0.7
+                    });
+                });
+            });
+
+            // --- MAGNETIC BUTTONS ---
+            const magneticButtons = document.querySelectorAll('button.hover-target, a.hover-target, .pricing-trigger');
+            magneticButtons.forEach(btn => {
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+
+                    gsap.to(btn, {
+                        x: x * 0.4,
+                        y: y * 0.4,
+                        ease: "power2.out",
+                        duration: 0.4
+                    });
+                });
+
+                btn.addEventListener('mouseleave', () => {
+                    gsap.to(btn, {
+                        x: 0,
+                        y: 0,
+                        ease: "elastic.out(1, 0.3)",
+                        duration: 1
+                    });
+                });
+            });
+
+            // Back to Top Button Logic
+            const backToTopBtn = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 600) {
+                    backToTopBtn.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+                } else {
+                    backToTopBtn.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+                }
+            });
+
+            // If hovering over light sections, maybe invert cursor (optional, kept simple for now)
+
+            // --- AUDIO TIMER LOGIC ---
+            let currentSeconds = 42 * 60 + 15; // Start at 42:15
+            const totalSeconds = 60 * 60; // Total 60:00
+            const timeEl = document.getElementById('audio-current-time');
+            const progressEl = document.getElementById('audio-progress');
+
+            setInterval(() => {
+                currentSeconds++;
+                if (currentSeconds > totalSeconds) currentSeconds = 0;
+
+                const mins = Math.floor(currentSeconds / 60);
+                const secs = currentSeconds % 60;
+                if (timeEl) timeEl.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                const percent = (currentSeconds / totalSeconds) * 100;
+                if (progressEl) progressEl.style.width = `${percent}%`;
+            }, 1000);
+
+            // --- PRICING MODAL LOGIC ---
+            const modal = document.getElementById('pricing-modal');
+            const content = document.getElementById('pricing-content');
+            const closeBtn = document.getElementById('close-pricing');
+            const backdrop = document.getElementById('pricing-backdrop');
+            const triggers = document.querySelectorAll('.pricing-trigger');
+
+            function openModal(e) {
+                e.preventDefault();
+                modal.classList.remove('pointer-events-none');
+                gsap.to(modal, { opacity: 1, duration: 0.3, ease: "power2.out" });
+                gsap.to(content, { scale: 1, opacity: 1, duration: 0.4, delay: 0.1, ease: "back.out(1.2)" });
+                document.body.style.overflow = 'hidden'; // prevent bg scroll
+            }
+
+            function closeModal() {
+                gsap.to(content, { scale: 0.95, opacity: 0, duration: 0.3, ease: "power2.in" });
+                gsap.to(modal, {
+                    opacity: 0, duration: 0.3, delay: 0.1, ease: "power2.in", onComplete: () => {
+                        modal.classList.add('pointer-events-none');
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+
+            triggers.forEach(t => t.addEventListener('click', openModal));
+            closeBtn.addEventListener('click', closeModal);
+            backdrop.addEventListener('click', closeModal);
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !modal.classList.contains('pointer-events-none')) {
+                    closeModal();
+                }
+            });
+
+            // --- HERO TEXT SPLIT ANIMATIONS ---
+            const tl = gsap.timeline();
+            tl.to('#hero-badge', { y: 0, opacity: 1, duration: 1, ease: "power3.out" })
+                // Animate individual words inside the hero title
+                .to('.title-word', {
+                    y: 0,
+                    duration: 1,
+                    stagger: 0.1,
+                    ease: "power4.out"
+                }, "-=0.5")
+                .to('#hero-desc', { y: 0, opacity: 1, duration: 1.5, ease: "power3.out" }, "-=0.5")
+                .to('#hero-cta', { y: 0, opacity: 1, duration: 1, ease: "power3.out" }, "-=1");
+
+            // Hero Parallax
+            gsap.to('#hero-bg', {
+                yPercent: 20,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: "main",
+                    start: "top top",
+                    end: "bottom top",
+                    scrub: true
+                }
+            });
+
+            // --- SECTION HEADLINE ANIMATIONS (Simulated SplitText) ---
+
+            // Philosophy Section Title
+            gsap.to('.section-word', {
+                scrollTrigger: { trigger: '.reveal-text-anim', start: "top 80%" },
+                y: 0, duration: 0.8, stagger: 0.05, ease: "power3.out"
+            });
+            gsap.to('.section-word-white', {
+                scrollTrigger: { trigger: '.reveal-text-anim', start: "top 80%" },
+                y: 0, duration: 0.8, stagger: 0.05, ease: "power3.out", delay: 0.2
+            });
+
+            // Hook Section Title
+            gsap.to('.hook-word', {
+                scrollTrigger: { trigger: '.reveal-hook-title', start: "top 85%" },
+                y: 0, duration: 1, stagger: 0.1, ease: "power4.out"
+            });
+
+            // Hook Parallax Background
+            gsap.to('#hook-parallax', {
+                yPercent: 15,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: "#hook-parallax",
+                    start: "top bottom",
+                    end: "bottom top",
+                    scrub: true
+                }
+            });
+
+            // --- NAV GLASS EFFECT ---
+            ScrollTrigger.create({
+                start: "top -100",
+                onEnter: () => {
+                    gsap.to('#main-nav', {
+                        backgroundColor: 'rgba(17, 24, 39, 0.8)',
+                        backdropFilter: 'blur(16px)',
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                        paddingTop: '16px',
+                        paddingBottom: '16px',
+                        duration: 0.4
+                    });
+                },
+                onLeaveBack: () => {
+                    gsap.to('#main-nav', {
+                        backgroundColor: 'transparent',
+                        backdropFilter: 'blur(0px)',
+                        borderBottom: '1px solid transparent',
+                        paddingTop: '24px',
+                        paddingBottom: '24px',
+                        duration: 0.4
+                    });
+                }
+            });
+
+            // --- SCROLL REVEALS ---
+            gsap.utils.toArray('.reveal-fade').forEach(elem => {
+                gsap.from(elem, {
+                    scrollTrigger: { trigger: elem, start: "top 85%" },
+                    opacity: 0, duration: 1.5, ease: "power2.inOut"
+                });
+            });
+
+            gsap.from('.reveal-slide-right', {
+                scrollTrigger: { trigger: '.reveal-slide-right', start: "top 80%" },
+                x: -50, opacity: 0, duration: 1.2, ease: "power3.out"
+            });
+
+            gsap.from('.reveal-slide-left', {
+                scrollTrigger: { trigger: '.reveal-slide-left', start: "top 80%" },
+                x: 50, opacity: 0, duration: 1.2, ease: "power3.out", delay: 0.2
+            });
+
+            gsap.from('.reveal-up', {
+                scrollTrigger: { trigger: '.reveal-up', start: "top 85%" },
+                y: 50, opacity: 0, duration: 1.2, ease: "power3.out"
+            });
+
+            gsap.utils.toArray('.reveal-card').forEach((card, i) => {
+                gsap.from(card, {
+                    scrollTrigger: { trigger: card.parentElement, start: "top 75%" },
+                    y: 50, opacity: 0, duration: 1, stagger: 0.2, ease: "power3.out"
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
